@@ -1,0 +1,8 @@
+{
+  "generator-react-webpack": {
+    "app-name": "wodCraft",
+    "appName": "wodCraft",
+    "style": "css",
+    "postcss": true
+  }
+}
