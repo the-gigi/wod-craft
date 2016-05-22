@@ -13,7 +13,7 @@ function receiveScores(user, json) {
   return {
     type: RECEIVE_SCORES,
     user: user,
-    scores: json.data.children.map(child => child.data),
+    scores: json.result,
     receivedAt: Date.now()
   }
 }
