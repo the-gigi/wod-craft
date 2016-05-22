@@ -5,5 +5,10 @@ fitness PRs (personal records)
 
 ## Usage
 
-type `npm run` to see available commands
+Make sure the [WOD Craft server](https://github.com/the-gigi/wod-craft-server) is running (the backend).
+
+type `npm start` to start the local dev server
+
+
+type `npm run` to see other available commands
 
