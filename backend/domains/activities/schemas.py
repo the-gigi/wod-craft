@@ -8,8 +8,8 @@ from enum import Enum
 
 
 class Unit(Enum):
-    LB = 'Pounds'
-    KG = 'Kilograms'
+    POUNDS = 'Pounds'
+    KILOGRAMS = 'Kilograms'
     POOD = 'Pood'
 
 
@@ -23,23 +23,24 @@ class ScoreType(Enum):
 
 
 class BaseActivity(BaseModel):
-    class ConfigDict:
+    class Config:
         from_attributes = True
+
     name: str
     description: str
     weight: Optional[int] = None
     reps: Optional[int] = None
     time: Optional[timedelta] = None
-    unit: Optional[Unit] = None
-    score_type: ScoreType
+    unit: Optional[str] = None
+    score_type: str
 
 
 class CreateActivityRequest(BaseActivity):
     def dict(self, *args, **kwargs):
-        data = super().dict(*args, **kwargs)
-        data['score_type'] = self.score_type.value
+        data = super().model_dump(*args, **kwargs)
+        data['score_type'] = self.score_type
         if self.unit:
-            data['unit'] = self.unit.value
+            data['unit'] = self.unit
         if self.time:
             data['time'] = str(self.time)
         return data

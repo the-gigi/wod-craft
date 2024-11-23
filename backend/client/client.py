@@ -9,7 +9,6 @@ class Client:
 
     def add_activity(self, activity: CreateActivityRequest) -> Activity:
         payload = activity.dict()
-
         response = requests.post(f"{self.base_url}/activities", json=payload)
         response.raise_for_status()
         return Activity.model_validate(response.json())
@@ -23,7 +22,7 @@ class Client:
     def get_activities(self) -> List[Activity]:
         response = requests.get(f"{self.base_url}/activities")
         response.raise_for_status()
-        return [Activity.parse_obj(activity) for activity in response.json()]
+        return [Activity.model_validate(activity) for activity in response.json()]
 
     def get_scores(self, activity_id: int) -> List[Score]:
         response = requests.get(f"{self.base_url}/activities/{activity_id}/scores")

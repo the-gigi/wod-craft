@@ -60,7 +60,7 @@ class ActivityService:
     def get_activities(self) -> List[Activity]:
         with Session(self.engine) as session:
             activities = session.exec(select(SQLActivity)).all()
-            return [Activity.from_orm(activity) for activity in activities]
+            return [Activity.model_validate(activity) for activity in activities]
 
     def create_activity(self, activity: CreateActivityRequest) -> Activity:
         with Session(self.engine) as session:

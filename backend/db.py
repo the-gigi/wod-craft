@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 
 engine: Optional[AsyncEngine | Engine] = None
 DATABASE_TYPE = "sqlite"
-SQLITE_FILE_NAME = "wodcraft.db"
+SQLITE_FILENAME = "wodcraft.db"
 SQLITE_URL = ""
 POSTGRES_URL = ""
 
@@ -16,7 +16,7 @@ POSTGRES_URL = ""
 def init_db():
     global engine
     global DATABASE_TYPE
-    global SQLITE_FILE_NAME
+    global SQLITE_FILENAME
     global SQLITE_URL
     global POSTGRES_URL
 
@@ -24,8 +24,8 @@ def init_db():
     DATABASE_TYPE = os.getenv("DATABASE_TYPE", "sqlite")
 
     # Set up database URLs
-    SQLITE_FILE_NAME = os.getenv("SQLITE_FILE_NAME", "wodcraft.db")
-    SQLITE_URL = f"sqlite:///{SQLITE_FILE_NAME}"
+    SQLITE_FILENAME = os.getenv("SQLITE_FILENAME", "wodcraft.db")
+    SQLITE_URL = f"sqlite:///{SQLITE_FILENAME}"
     POSTGRES_URL = os.getenv("POSTGRES_URL")
 
     # Set up the engine based on the selected database type

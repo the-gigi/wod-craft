@@ -1,6 +1,7 @@
+from enum import Enum
 from typing import Optional
-from sqlmodel import Field, SQLModel, Relationship
-from .schemas import Activity, Score
+from sqlmodel import Field, SQLModel, Relationship, Column
+from .schemas import Activity, Score, ScoreType, Unit
 from ..users.db_models import SQLUser
 
 

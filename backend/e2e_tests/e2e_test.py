@@ -30,8 +30,17 @@ class TestActivityServiceE2E(unittest.TestCase):
         except requests.exceptions.ConnectionError:
             pass
 
-        cls.server_process = subprocess.Popen([
-            "uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", cls.port])
+        # cls.server_process = subprocess.Popen([
+        #     "uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", cls.port])
+        cmd = f"""
+                    import os
+                    import uvicorn
+                    uvicorn.run("backend.main:app", host="0.0.0.0", port={cls.port}, reload=True)
+        """
+        # Remove leading spaces from each line
+        cmd = "\n".join([line.strip() for line in cmd.split("\n")])
+
+        cls.server_process = subprocess.Popen(["python", "-c", cmd], env=os.environ)
 
         start_time = time.time()
         while time.time() - start_time < timeout:
@@ -55,34 +64,34 @@ class TestActivityServiceE2E(unittest.TestCase):
         # Start the WODCraft server in a separate process, unless it's already running
         cls.client = Client(base_url=f"http://localhost:{cls.port}")
         cls.run_server()
-        print("Server started")
+        #print("Server started")
 
     @classmethod
     def tearDownClass(cls):
         """ """
         # Don't stop the WODCraft server, so it can be reused when iterating on the tests
-        # cls.server_process.terminate()
-        # cls.server_process.wait()
+        cls.server_process.terminate()
+        cls.server_process.wait()
 
         # Don't delete the DB file
-        # if os.path.exists(db_file):
-        #     os.remove(db_file)
+        if os.path.exists(db_file):
+            os.remove(db_file)
 
     def test_add_activity(self):
         new_activity = CreateActivityRequest(
             name="Pull-ups",
             description="Max reps pull-ups",
-            score_type=ScoreType.REPS
+            score_type=ScoreType.REPS.value
         )
-        response = self.client.add_activity(new_activity)
-        self.assertEqual(response["name"], new_activity.name)
-        self.assertEqual(response["description"], new_activity.description)
-        self.assertEqual(response["score_type"], new_activity.score_type)
+        activity = self.client.add_activity(new_activity)
+        self.assertEqual(activity.name, new_activity.name)
+        self.assertEqual(activity.description, new_activity.description)
+        self.assertEqual(activity.score_type, new_activity.score_type)
 
         # Get the activities
         activities = self.client.get_activities()
         self.assertEqual(len(activities), 1)
-        self.assertEqual(activities[0]["name"], new_activity["name"])
+        self.assertEqual(activities[0].name, new_activity.name)
 
 
 if __name__ == "__main__":
