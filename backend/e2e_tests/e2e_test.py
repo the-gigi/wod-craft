@@ -6,10 +6,10 @@ from typing import Optional
 
 from backend.domains.activities.schemas import CreateActivityRequest, ScoreType
 from backend.client.client import Client
-import backend.db
 
-from sqlmodel import SQLModel
 import requests
+
+from backend.domains.users.schemas import CreateUserRequest, EmailStr
 
 # Ensure we use a test DB
 db_file = "wodcraft_e2e.db"
@@ -93,6 +93,23 @@ class TestActivityServiceE2E(unittest.TestCase):
         self.assertEqual(len(activities), 1)
         self.assertEqual(activities[0].name, new_activity.name)
 
+        # Get activity
+        activity = self.client.get_activity(activity.id)
+        self.assertEqual(activity.name, new_activity.name)
+
+    def test_add_user(self):
+        """ """
+        new_user = CreateUserRequest(
+            name="guy",
+            email="guysayfan@gmail.com"
+        )
+        user = self.client.add_user(new_user)
+        self.assertEqual(user.name, new_user.name)
+        self.assertEqual(user.email, new_user.email)
+
+        user = self.client.get_user(new_user.name)
+        self.assertIsNotNone(user)
+        self.assertEqual(user.email, new_user.email)
 
 if __name__ == "__main__":
     unittest.main()

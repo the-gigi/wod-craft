@@ -12,9 +12,9 @@ async def get_users():
     return service.get_users()
 
 
-@router.get("/users/{email}", tags=["users"])
-async def get_user(email: str):
-    return service.get_user(email)
+@router.get("/users/{name}", tags=["users"])
+async def get_user(name: str):
+    return service.get_user(name)
 
 
 @router.post("/users/", tags=["users"])

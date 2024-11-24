@@ -1,6 +1,7 @@
 import requests
 from typing import List
 from backend.domains.activities.schemas import Activity, CreateActivityRequest, Score
+from backend.domains.users.schemas import CreateUserRequest, User
 
 
 class Client:
@@ -17,14 +18,47 @@ class Client:
         response = requests.post(f"{self.base_url}/activities/{activity_id}/scores",
                                  json=score.dict())
         response.raise_for_status()
-        return Score.parse_obj(response.json())
+        return Score.model_validate(response.json())
 
     def get_activities(self) -> List[Activity]:
         response = requests.get(f"{self.base_url}/activities")
         response.raise_for_status()
         return [Activity.model_validate(activity) for activity in response.json()]
 
+    def get_activity(self, activity_id: int) -> Activity:
+        response = requests.get(f"{self.base_url}/activities/{activity_id}")
+        response.raise_for_status()
+        return Activity.model_validate(response.json())
+
     def get_scores(self, activity_id: int) -> List[Score]:
         response = requests.get(f"{self.base_url}/activities/{activity_id}/scores")
         response.raise_for_status()
         return [Score.parse_obj(score) for score in response.json()]
+
+    def add_user(self, user: CreateUserRequest) -> User:
+        payload = user.model_dump()
+        response = requests.post(f"{self.base_url}/users", json=payload)
+        response.raise_for_status()
+        return User.model_validate(response.json())
+
+    def get_users(self) -> List[User]:
+        response = requests.get(f"{self.base_url}/users")
+        response.raise_for_status()
+        return [User.model_validate(user) for user in response.json()]
+
+    def get_user(self, email: str) -> User:
+        response = requests.get(f"{self.base_url}/users/{email}")
+        response.raise_for_status()
+        return User.model_validate(response.json())
+
+    def login(self, email: str) -> str:
+        """ """
+        response = requests.post(f"{self.base_url}/login", json={"email": email})
+        response.raise_for_status()
+        return response.json()["token"]
+
+    def logout(self, token: str) -> str:
+        """ """
+        response = requests.post(f"{self.base_url}/logout", json={"token": token})
+        response.raise_for_status()
+        return response.json()["token"]

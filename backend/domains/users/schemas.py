@@ -13,7 +13,7 @@ class BaseUser(BaseModel):
         from_attributes = True
 
     name: str
-    email: EmailStr
+    email: str
 
 
 class CreateUserRequest(BaseUser):
@@ -21,7 +21,9 @@ class CreateUserRequest(BaseUser):
 
 
 class User(BaseUser):
+    id: int
     role: Role
+    token: str | None
 
 
 class Tag(BaseModel):

@@ -5,7 +5,9 @@ from .schemas import User, Role
 
 class SQLUser(User, SQLModel, table=True):
     __tablename__ = "users"
-    id: int | None = Field(default=None, primary_key=True)
+    id: int = Field(default=None, primary_key=True)
+    name: str = Field(index=True, unique=True)
+    email: str = Field(index=True, unique=True)
     role: Role = Field(default=Role.USER)
 
     # Establish a relationship with tags

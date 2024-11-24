@@ -23,7 +23,7 @@ class ActivityService:
                 reps=5,
                 time=None,
                 unit=Unit.LB,
-                score_type=ScoreType.WEIGHT
+                score_type=ScoreType.WEIGHT.name
             ),
             Activity(
                 id=2,
@@ -33,7 +33,7 @@ class ActivityService:
                 reps=5,
                 time=None,
                 unit=Unit.LB,
-                score_type=ScoreType.WEIGHT
+                score_type=ScoreType.WEIGHT.name
             ),
             Activity(
                 id=3,
@@ -43,19 +43,19 @@ class ActivityService:
                 reps=5,
                 time=None,
                 unit=Unit.LB,
-                score_type=ScoreType.WEIGHT
+                score_type=ScoreType.WEIGHT.name
             )
         ]
         with Session(self.engine) as session:
             for activity in initial_activities:
-                sql_activity = SQLActivity.from_orm(activity)
+                sql_activity = SQLActivity.model_validate(activity)
                 session.add(sql_activity)
             session.commit()
 
     def get_activity(self, activity_id: int) -> Optional[Activity]:
         with Session(self.engine) as session:
             activity = session.get(SQLActivity, activity_id)
-            return Activity.from_orm(activity) if activity else None
+            return Activity.model_validate(activity) if activity else None
 
     def get_activities(self) -> List[Activity]:
         with Session(self.engine) as session:
@@ -64,7 +64,7 @@ class ActivityService:
 
     def create_activity(self, activity: CreateActivityRequest) -> Activity:
         with Session(self.engine) as session:
-            args = activity.dict()
+            args = activity.model_dump()
             args.update(
                 dict(score_type= activity.score_type if activity else None,
                      unit=activity.unit if activity.unit else None,
@@ -73,7 +73,10 @@ class ActivityService:
             session.add(new_activity)
             session.commit()
             session.refresh(new_activity)
-            return Activity(id=new_activity.id, **activity.dict())
+            try:
+                return Activity(id=new_activity.id, **args)
+            except Exception as e:
+                raise
 
     def update_activity(self, activity: Activity) -> Activity:
         with Session(self.engine) as session:
