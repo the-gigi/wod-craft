@@ -71,7 +71,10 @@ class ActivityService:
                      time=str(activity.time) if activity.time else None))
             new_activity = SQLActivity(**args)
             session.add(new_activity)
-            session.commit()
+            try:
+                session.commit()
+            except Exception as e:
+                raise ValueError(f"Activity with name {activity.name} already exists")
             session.refresh(new_activity)
             try:
                 return Activity(id=new_activity.id, **args)

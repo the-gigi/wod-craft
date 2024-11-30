@@ -14,26 +14,6 @@ from ..activities.db_models import SQLActivity
 class UserService:
     def __init__(self):
         """ """
-        # self.users: Dict[str, User] = {
-        #     "the.gigi@gmail.com": User(
-        #         id=1,
-        #         name="Gigi",
-        #         email="the.gigi@gmail.com",
-        #         role=Role.ADMIN
-        #     ),
-        #     "guysayfan@gmail.com": User(
-        #         id=2,
-        #         name="Guy",
-        #         email="guysayfan@gmail.com",
-        #         role=Role.USER
-        #     ),
-        #     "lsayfan@gmail.com": User(
-        #         id=3,
-        #         name="Guy",
-        #         email="lsayfan@gmail.com",
-        #         role=Role.USER
-        #     )
-        # }
 
     @property
     def engine(self):

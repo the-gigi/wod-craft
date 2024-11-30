@@ -1,33 +1,29 @@
-from enum import Enum
 from typing import Optional
-from sqlmodel import Field, SQLModel, Relationship, Column
-from .schemas import Activity, Score, ScoreType, Unit
-from ..users.db_models import SQLUser
+from sqlmodel import Field, SQLModel, Relationship
+from .schemas import Activity
 
 
-# SQLActivity inherits from the existing Pydantic Activity model
-class SQLActivity(Activity, SQLModel, table=True):
+class SQLActivity(SQLModel, Activity, table=True):  # Inherit from Activity and SQLModel
     __tablename__ = "activities"
-    id: int = Field(default=None, primary_key=True)
+    id: int = Field(primary_key=True)
+    parent_id: Optional[int] = Field(
+        default=None,
+        nullable=True,
+        foreign_key="activities.id")
+    parent: Optional['SQLActivity'] = Relationship(
+      back_populates='children',
+      sa_relationship_kwargs=dict(
+        remote_side='SQLActivity.id'
+      )
+    )
 
+    children: list['SQLActivity'] = Relationship(back_populates='parent')
 
-# SQLScore inherits from the existing Pydantic Score model
-class SQLScore(Score, SQLModel, table=True):
-    __tablename__ = "scores"
-    id: int = Field(default=None, primary_key=True)
+    # name: str
+    # description: str
+    # weight: Optional[int] = None
+    # reps: Optional[int] = None
+    # time: Optional[int] = None
+    # unit: Optional[str] = None
+    # score_type: str
 
-    # Foreign keys
-    activity_id: int = Field(foreign_key="activities.id")
-    user_id: int = Field(foreign_key="users.id")
-
-    # Fields from the original Score schema
-    weight: Optional[int] = None
-    reps: Optional[int] = None
-    time: Optional[int] = None
-    rx: bool
-    dnf: bool
-    notes: Optional[str] = None
-
-    # Relationships
-    activity: SQLActivity = Relationship(cascade_delete=False)
-    # user: SQLUser = Relationship(back_populates="scores")

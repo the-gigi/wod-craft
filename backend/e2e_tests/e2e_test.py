@@ -2,6 +2,7 @@ import os
 import subprocess
 import time
 import unittest
+from datetime import timedelta, date
 from typing import Optional
 
 from backend.domains.activities.schemas import CreateActivityRequest, ScoreType
@@ -9,6 +10,7 @@ from backend.client.client import Client
 
 import requests
 
+from backend.domains.scores.schemas import CreateScoreRequest
 from backend.domains.users.schemas import CreateUserRequest, EmailStr
 
 # Ensure we use a test DB
@@ -17,7 +19,7 @@ os.environ["DATABASE_TYPE"] = "sqlite"
 os.environ["SQLITE_FILENAME"] = db_file
 
 
-class TestActivityServiceE2E(unittest.TestCase):
+class TestE2E(unittest.TestCase):
     port = "7777"
     client: Optional[Client] = None
 
@@ -69,11 +71,9 @@ class TestActivityServiceE2E(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         """ """
-        # Don't stop the WODCraft server, so it can be reused when iterating on the tests
         cls.server_process.terminate()
         cls.server_process.wait()
 
-        # Don't delete the DB file
         if os.path.exists(db_file):
             os.remove(db_file)
 
@@ -110,6 +110,45 @@ class TestActivityServiceE2E(unittest.TestCase):
         user = self.client.get_user(new_user.name)
         self.assertIsNotNone(user)
         self.assertEqual(user.email, new_user.email)
+
+    def test_add_scores(self):
+        new_user = CreateUserRequest(
+            name="gigi",
+            email="the.gigi@gmail.com"
+        )
+        user = self.client.add_user(new_user)
+
+        # Create a new activity
+        new_activity = CreateActivityRequest(
+            name="Running",
+            description="5k run",
+            score_type=ScoreType.TIME.value
+        )
+        activity = self.client.add_activity(new_activity)
+
+        score1 = self.client.add_score(CreateScoreRequest(
+            user_id=user.id,
+            activity_id=activity.id,
+            when=str(date.today() - timedelta(days=1)),
+            time=str(timedelta(minutes=23, seconds=10)),
+            notes="First score"
+        ))
+        score2 = self.client.add_score(CreateScoreRequest(
+            user_id=user.id,
+            activity_id=activity.id,
+            when=str(date.today()),
+            time=str(timedelta(minutes=21, seconds=30)),
+            notes="Second score"
+        ))
+
+        # Retrieve all scores for the user and the specific activity
+        scores = self.client.get_scores(user_id=user.id, activity_id=activity.id)
+
+        # Verify the retrieved scores
+        self.assertEqual(len(scores), 2)
+        self.assertEqual(scores[0].time, "0:23:10")
+        self.assertEqual(scores[1].time, "0:21:30")
+
 
 if __name__ == "__main__":
     unittest.main()

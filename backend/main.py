@@ -7,9 +7,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from backend.db import create_db_and_tables
 from backend.deps import deps
 from backend.internal import admin
-from backend.domains import items
 from backend.domains.users.routes import router as users_router
 from backend.domains.activities.routes import router as activities_router
+from backend.domains.scores.routes import router as scores_router
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -25,9 +25,9 @@ async def lifespan(the_app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-app.include_router(items.router)
 app.include_router(users_router)
 app.include_router(activities_router)
+app.include_router(scores_router)
 app.include_router(
     admin.router,
     prefix="/admin",

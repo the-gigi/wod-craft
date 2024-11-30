@@ -4,9 +4,6 @@ from pydantic import BaseModel
 from enum import Enum
 
 
-# from ..users.schemas import User
-
-
 class Unit(Enum):
     POUNDS = 'Pounds'
     KILOGRAMS = 'Kilograms'
@@ -19,12 +16,25 @@ class ScoreType(Enum):
     WEIGHT = 'Weight'  # Lift as much weight as possible
     TIME = 'Time'  # Complete as fast as possible
     EMOM = 'EMOM'  # Perform the activity every minute on the minute for the specified duration)
+    DEATH_BY_X = 'Death by X'  # Perform the activity every minute on the minute, increasing the number of reps by 1 each minute until failure, the score is the number of minutes
+    TABATA = 'Tabata'  # Perform each of the 4 activities for 20 seconds, rest for 10 seconds, repeat 8 times, the score for each activity is the lowest number of reps in a round
     FIXED = 'Fixed'  # Complete the activity as specified (e.g 5 reps of 05 pounds)
 
 
 class BaseActivity(BaseModel):
     class Config:
         from_attributes = True
+
+    def dict(self, *args, **kwargs):
+        data = super().model_dump(*args, **kwargs)
+        data['score_type'] = self.score_type
+        if self.unit:
+            data['unit'] = self.unit
+        if self.time:
+            data['time'] = str(self.time)
+        data['children'] = [
+            sa.dict() for sa in self.children] if self.sub_activities else None
+        return data
 
     name: str
     description: str
@@ -36,38 +46,11 @@ class BaseActivity(BaseModel):
 
 
 class CreateActivityRequest(BaseActivity):
-    def dict(self, *args, **kwargs):
-        data = super().model_dump(*args, **kwargs)
-        data['score_type'] = self.score_type
-        if self.unit:
-            data['unit'] = self.unit
-        if self.time:
-            data['time'] = str(self.time)
-        return data
+    sub_activities: Optional[list[int]] = None
 
 
 class Activity(BaseActivity):
     id: int
+    parent_id: Optional[int] = None # parent activity id
 
 
-class BaseScore(BaseModel):
-    class ConfigDict:
-        from_attributes = True
-
-    activity_id: int
-    user_id: int
-    when: date
-    weight: Optional[int] = None
-    reps: Optional[int] = None
-    time: Optional[time] = None
-    rx: bool  # as prescribed, no modifications
-    dnf: bool  # did not finish
-    notes: Optional[str] = None
-
-
-class CreateScoreRequest(BaseModel):
-    """ """
-
-
-class Score(BaseScore):
-    id: int

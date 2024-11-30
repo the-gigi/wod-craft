@@ -1,7 +1,8 @@
 import requests
 from typing import List
-from backend.domains.activities.schemas import Activity, CreateActivityRequest, Score
+from backend.domains.activities.schemas import Activity, CreateActivityRequest
 from backend.domains.users.schemas import CreateUserRequest, User
+from backend.domains.scores.schemas import Score, CreateScoreRequest
 
 
 class Client:
@@ -14,9 +15,10 @@ class Client:
         response.raise_for_status()
         return Activity.model_validate(response.json())
 
-    def add_score(self, activity_id: int, score: Score) -> Score:
-        response = requests.post(f"{self.base_url}/activities/{activity_id}/scores",
-                                 json=score.dict())
+    def add_score(self, score: CreateScoreRequest) -> Score:
+        url = f"{self.base_url}/scores"
+        payload = score.dict()
+        response = requests.post(url, json=payload)
         response.raise_for_status()
         return Score.model_validate(response.json())
 
@@ -30,8 +32,9 @@ class Client:
         response.raise_for_status()
         return Activity.model_validate(response.json())
 
-    def get_scores(self, activity_id: int) -> List[Score]:
-        response = requests.get(f"{self.base_url}/activities/{activity_id}/scores")
+    def get_scores(self, user_id: int, activity_id: int) -> List[Score]:
+        url = f"{self.base_url}/scores?user_id={user_id}&activity_id={activity_id}"
+        response = requests.get(url)
         response.raise_for_status()
         return [Score.parse_obj(score) for score in response.json()]
 
@@ -46,8 +49,8 @@ class Client:
         response.raise_for_status()
         return [User.model_validate(user) for user in response.json()]
 
-    def get_user(self, email: str) -> User:
-        response = requests.get(f"{self.base_url}/users/{email}")
+    def get_user(self, name: str) -> User:
+        response = requests.get(f"{self.base_url}/users/{name}")
         response.raise_for_status()
         return User.model_validate(response.json())
 
