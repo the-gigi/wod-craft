@@ -27,7 +27,7 @@ class UserService:
                 result = User.model_validate(user.one()) if user else None
                 return result
             except Exception as e:
-                raise ValueError(f"User with name {name} not found")
+                raise ValueError(f"User with name '{name}' not found")
 
     def get_users(self) -> Dict[str, User]:
         # return self.users

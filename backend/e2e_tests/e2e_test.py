@@ -149,6 +149,42 @@ class TestE2E(unittest.TestCase):
         self.assertEqual(scores[0].time, "0:23:10")
         self.assertEqual(scores[1].time, "0:21:30")
 
+    def test_add_workout(self):
+        """Add Cindy workout"""
+        # Create a new activity
+        five_pull_ups_request = CreateActivityRequest(
+            name="5 Pull-Ups",
+            description="Perform 5 pull-ups",
+            score_type=ScoreType.FIXED.value,
+        )
+        five_pull_ups_activity = self.client.add_activity(five_pull_ups_request)
+
+        ten_push_ups_request = CreateActivityRequest(
+            name="10 Push-Ups",
+            description="Perform 10 push-ups",
+            score_type=ScoreType.FIXED.value,
+        )
+        ten_push_ups_activity = self.client.add_activity(ten_push_ups_request)
+
+        fifteen_squats_request = CreateActivityRequest(
+            name="15 Squats",
+            description="Perform 15 air squats",
+            score_type=ScoreType.FIXED.value,
+        )
+        fifteen_squats_activity = self.client.add_activity(ten_push_ups_request)
+
+        cindy_request = CreateActivityRequest(
+            name="Cindy",
+            description="AMRAP in 20 minutes of 5 pull-ups, 10 push-ups, 15 squats",
+            score_type=ScoreType.AMRAP.value,
+            sub_activities=[five_pull_ups_activity.id, ten_push_ups_activity.id, fifteen_squats_activity.id]
+        )
+        cindy_activity = self.client.add_activity(cindy_request)
+
+        self.assertEqual(cindy_activity.name, cindy_request.name)
+        self.assertEqual(cindy_activity.description, cindy_request.description)
+        self.assertEqual(cindy_activity.score_type, cindy_request.score_type)
+        self.assertIsNone(cindy_activity.parent_id)
 
 if __name__ == "__main__":
     unittest.main()

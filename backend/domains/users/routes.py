@@ -1,4 +1,6 @@
-from fastapi import APIRouter
+from http.client import HTTPException
+
+from fastapi import APIRouter, HTTPException
 
 from .schemas import CreateUserRequest
 from .service import UserService
@@ -14,7 +16,10 @@ async def get_users():
 
 @router.get("/users/{name}", tags=["users"])
 async def get_user(name: str):
-    return service.get_user(name)
+    try:
+        return service.get_user(name)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
 
 
 @router.post("/users/", tags=["users"])

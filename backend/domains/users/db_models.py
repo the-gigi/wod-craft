@@ -9,6 +9,7 @@ class SQLUser(User, SQLModel, table=True):
     name: str = Field(index=True, unique=True)
     email: str = Field(index=True, unique=True)
     role: Role = Field(default=Role.USER)
+    token: str | None = Field(default=None)
 
     # Establish a relationship with tags
     #tags: list["SQLTag"] = Relationship(back_populates="user")

@@ -32,8 +32,6 @@ class BaseActivity(BaseModel):
             data['unit'] = self.unit
         if self.time:
             data['time'] = str(self.time)
-        data['children'] = [
-            sa.dict() for sa in self.children] if self.sub_activities else None
         return data
 
     name: str
